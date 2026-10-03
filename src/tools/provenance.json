@@ -1,0 +1,11 @@
+{
+  "source": "https://gumroad.com/api",
+  "sourceRepo": "antiwork/gumroad",
+  "sourceSha": "0feb9b02b45efffc4ea4c7f8dea5c18a7f58ec0f",
+  "checked": "2026-10-03",
+  "schemaType": "Reviewed typed field subset from pinned official documentation and controller source; not an official OpenAPI export.",
+  "nativeToolContracts": 51,
+  "distinctNativeRoutes": 50,
+  "sanitizedSnapshotSha256": "52b563ab657e418d11a8b5b258fb4d905a265d8f9f6bc4a4126a95b67c3800ca",
+  "scopeLimit": "Selected commerce subset. No marketing/admin/files/media/store HTML endpoints. No generic passthrough or unsupported guessed custom-field GET."
+}

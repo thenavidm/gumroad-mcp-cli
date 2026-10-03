@@ -1,0 +1,98 @@
+{
+  "name": "@thenavidm/gumroad-mcp-cli",
+  "version": "2.0.0",
+  "description": "Gumroad shared task CLI and local MCP with private seller/license profiles, mandatory effect approval, safe license checks, exact reviewed batches and bounded private exports.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "gumroad-mcp": "dist/index.js",
+    "gumroad-cli": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "build:mcpb": "bash desktop-extension/build.sh",
+    "check:counts": "node scripts/check-counts.mjs",
+    "check:discovery": "node scripts/check-discovery.mjs",
+    "sync:api": "node scripts/check-native-contract.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
+    "@types/node": "^22.10.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "license": "AGPL-3.0",
+  "author": "Navid Moazzez (https://navid.me)",
+  "homepage": "https://navid.me/mcp-servers/gumroad",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thenavidm/gumroad-mcp-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thenavidm/gumroad-mcp-cli/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "INSTALL.md",
+    "SKILL.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "COMPARISON.md",
+    "CONTRIBUTING.md"
+  ],
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "cli",
+    "command-line-tool",
+    "gumroad",
+    "commerce",
+    "digital-products",
+    "sales",
+    "refunds",
+    "license-keys",
+    "reviewed-batches",
+    "private-export",
+    "codex",
+    "claude-code",
+    "claude-desktop",
+    "cursor",
+    "ai-agents",
+    "typescript",
+    "desktop-extension",
+    "private-accounts",
+    "json",
+    "mutation-approval",
+    "write-safety",
+    "gemini-cli",
+    "windsurf",
+    "open-source",
+    "read-only",
+    "schema-validation",
+    "subscriptions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "overrides": {
+    "tmp": "^0.2.7"
+  }
+}

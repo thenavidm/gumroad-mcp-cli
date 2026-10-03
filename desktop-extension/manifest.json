@@ -1,0 +1,100 @@
+{
+  "manifest_version": "0.2",
+  "name": "gumroad",
+  "display_name": "Gumroad MCP Server & CLI",
+  "version": "2.0.0",
+  "description": "57 shared Gumroad commerce tasks with private seller/license profiles and per-call approval.",
+  "long_description": "51 native tool contracts over 50 distinct routes plus 6 compatibility/local helpers. 25 reads and 32 confirmed effects. Official CLI and MCP already exist. OAuth import, automatic retries, transaction guarantees and measured task-token savings are not advertised.",
+  "author": {
+    "name": "Navid Moazzez",
+    "url": "https://navid.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenavidm/gumroad-mcp-cli"
+  },
+  "homepage": "https://navid.me/mcp-servers/gumroad",
+  "documentation": "https://github.com/thenavidm/gumroad-mcp-cli#readme",
+  "support": "https://github.com/thenavidm/gumroad-mcp-cli/issues",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "gumroad",
+    "commerce",
+    "sales",
+    "licenses",
+    "mcp",
+    "cli"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "GUMROAD_TOKEN_FILE": "${user_config.token_file}",
+        "GUMROAD_READ_ONLY": "${user_config.read_only}",
+        "GUMROAD_ALLOW_DESTRUCTIVE": "${user_config.allow_destructive}",
+        "GUMROAD_LICENSE_KEY": "${user_config.license_key}",
+        "GUMROAD_LICENSE_FILE": "${user_config.license_file}",
+        "GUMROAD_ACCESS_TOKEN": "${user_config.api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Private seller access token",
+      "description": "Private seller Bearer access token; choose this OR token_file. Endpoint scopes govern authority.",
+      "sensitive": true,
+      "required": false
+    },
+    "token_file": {
+      "type": "string",
+      "title": "Private seller token file",
+      "description": "Absolute owner-private regular non-symlink file outside repositories. Choose instead of api_key; restrict Windows ACLs.",
+      "sensitive": true,
+      "required": false
+    },
+    "read_only": {
+      "type": "boolean",
+      "title": "Read only",
+      "description": "Hide and directly refuse 32 native/local effects, including exports.",
+      "default": false,
+      "required": false
+    },
+    "allow_destructive": {
+      "type": "boolean",
+      "title": "Allow explicitly confirmed operations",
+      "description": "False refuses confirmed operations too.",
+      "default": true,
+      "required": false
+    },
+    "license_key": {
+      "type": "string",
+      "title": "Private independent license key",
+      "description": "Independent private customer license; choose this OR license_file. Verification sends false; seller license effects also require a seller token.",
+      "sensitive": true,
+      "required": false
+    },
+    "license_file": {
+      "type": "string",
+      "title": "Private license-only file",
+      "description": "Absolute owner-private regular non-symlink license-only file. Verification needs no seller token; seller management does.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22"
+    }
+  }
+}
