@@ -35,7 +35,7 @@ CLI uses hyphenated commands, MCP uses underscores. --json gives parsed native o
 
 All 32 native/local effects require explicit confirm. GUMROAD_READ_ONLY=1 hides them and directly refuses hidden confirmed calls through the actual server handler. GUMROAD_ALLOW_DESTRUCTIVE=0 refuses them even with confirm. --agent and --yes affect output/prompt formatting only, never approval. The same guard protects CLI and MCP, including counter changes, receipts, product publication, refunds and private export file writes.
 
-Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout,1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
+Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout, 1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
 
 
 ### Inspect products, sales and subscribers before changing anything
@@ -108,7 +108,7 @@ gumroad-cli create-resource-subscription --help
 
 ### Review exact ordered effects locally
 
-preview_commerce_batch accepts1–20 ordered native effects, excluding rotated-key output. Every task has tool and arguments. Nested arguments cannot override account/confirm, supply credentials, or reference mutable output/payload files. All schemas and native semantics are checked before any network call. The returned reviewSha256 binds exact ordered requests, profile label and reviewed snapshot digest. It does not hash loaded private credentials, freeze upstream state, expire, guarantee single use or confer provider authority.
+preview_commerce_batch accepts 1–20 ordered native effects, excluding rotated-key output. Every task has tool and arguments. Nested arguments cannot override account/confirm, supply credentials, or reference mutable output/payload files. All schemas and native semantics are checked before any network call. The returned reviewSha256 binds exact ordered requests, profile label and reviewed snapshot digest. It does not hash loaded private credentials, freeze upstream state, expire, guarantee single use or confer provider authority.
 
 ~~~bash
 gumroad-cli preview-commerce-batch --tasks '{"tool":"disable_product","arguments":{"product_id":"REVIEWED_PRODUCT_ID"}}' --agent
@@ -119,7 +119,7 @@ Each repeated --tasks flag carries one JSON task object. To execute only request
 
 ### Export private metadata with bounded continuation
 
-export_resources supports list_products/list_sales/list_subscribers/list_payouts and only their actual filters. Defaults are10pages/1,000items; accepted maxima are100pages/10,000items with a5 MiB final file cap. The output file is exclusively created with 0600 on POSIX before native reads; no existing file is overwritten and the final target symlink is not followed. The parent directory and Windows ACLs require separate private configuration.
+export_resources supports list_products/list_sales/list_subscribers/list_payouts and only their actual filters. Defaults are 10 pages/1,000 items; accepted maxima are 100 pages/10,000 items with a 5 MiB final file cap. The output file is exclusively created with 0600 on POSIX before native reads; no existing file is overwritten and the final target symlink is not followed. The parent directory and Windows ACLs require separate private configuration.
 
 ~~~bash
 gumroad-cli export-resources --help

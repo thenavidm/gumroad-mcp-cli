@@ -5566,8 +5566,7 @@ gumroad-cli schema get-custom-field
 
 Local profile labels/default and credential availability only. No secrets, file paths, provider identity or network.
 
-| Argument | Type | Required | Meaning and constraints |
-| --- | --- | --- | --- |
+This local command takes no arguments.
 
 ~~~bash
 gumroad-cli list-accounts --help
@@ -5843,7 +5842,7 @@ gumroad-cli schema submit-commerce-batch
 
 #### export_resources
 
-Confirmed cursor-based JSON export into a new exclusive0600 private file, with page/item/byte budgets and explicit continuation. No URL following, digital files or atomic backup.
+Confirmed cursor-based JSON export into a new exclusive 0600 private file, with page/item/byte budgets and explicit continuation. No URL following, digital files or atomic backup.
 
 | Argument | Type | Required | Meaning and constraints |
 | --- | --- | --- | --- |
@@ -5988,7 +5987,7 @@ gumroad-cli create-resource-subscription --help
 
 ### Review exact ordered effects locally
 
-preview_commerce_batch accepts1–20 ordered native effects, excluding rotated-key output. Every task has tool and arguments. Nested arguments cannot override account/confirm, supply credentials, or reference mutable output/payload files. All schemas and native semantics are checked before any network call. The returned reviewSha256 binds exact ordered requests, profile label and reviewed snapshot digest. It does not hash loaded private credentials, freeze upstream state, expire, guarantee single use or confer provider authority.
+preview_commerce_batch accepts 1–20 ordered native effects, excluding rotated-key output. Every task has tool and arguments. Nested arguments cannot override account/confirm, supply credentials, or reference mutable output/payload files. All schemas and native semantics are checked before any network call. The returned reviewSha256 binds exact ordered requests, profile label and reviewed snapshot digest. It does not hash loaded private credentials, freeze upstream state, expire, guarantee single use or confer provider authority.
 
 ~~~bash
 gumroad-cli preview-commerce-batch --tasks '{"tool":"disable_product","arguments":{"product_id":"REVIEWED_PRODUCT_ID"}}' --agent
@@ -5999,7 +5998,7 @@ Each repeated --tasks flag carries one JSON task object. To execute only request
 
 ### Export private metadata with bounded continuation
 
-export_resources supports list_products/list_sales/list_subscribers/list_payouts and only their actual filters. Defaults are10pages/1,000items; accepted maxima are100pages/10,000items with a5 MiB final file cap. The output file is exclusively created with 0600 on POSIX before native reads; no existing file is overwritten and the final target symlink is not followed. The parent directory and Windows ACLs require separate private configuration.
+export_resources supports list_products/list_sales/list_subscribers/list_payouts and only their actual filters. Defaults are 10 pages/1,000 items; accepted maxima are 100 pages/10,000 items with a 5 MiB final file cap. The output file is exclusively created with 0600 on POSIX before native reads; no existing file is overwritten and the final target symlink is not followed. The parent directory and Windows ACLs require separate private configuration.
 
 ~~~bash
 gumroad-cli export-resources --help
@@ -6028,7 +6027,7 @@ These labels/IDs are placeholders. Configure their real values privately. Revoke
 
 All 32 native/local effects require explicit confirm. GUMROAD_READ_ONLY=1 hides them and directly refuses hidden confirmed calls through the actual server handler. GUMROAD_ALLOW_DESTRUCTIVE=0 refuses them even with confirm. --agent and --yes affect output/prompt formatting only, never approval. The same guard protects CLI and MCP, including counter changes, receipts, product publication, refunds and private export file writes.
 
-Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout,1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
+Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout, 1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
 
 
 ## 13. How the two surfaces work
@@ -6052,7 +6051,7 @@ The package has no telemetry, browser-cookie import, arbitrary host or digital-f
 | GUMROAD_LICENSE_FILE | Absolute owner-private license-only file |
 | GUMROAD_ACCOUNTS | Private named array: name, access_token/token_file, license_key/license_file; no fallback |
 | GUMROAD_DEFAULT_ACCOUNT | Exact configured default profile label |
-| GUMROAD_READ_ONLY | 1/true hides/directly refuses32 effects |
+| GUMROAD_READ_ONLY | 1/true hides/directly refuses 32 effects |
 | GUMROAD_ALLOW_DESTRUCTIVE | 0/false refuses effects even with confirm |
 | GUMROAD_AUDIT_LOG | Optional private best-effort static guard decisions |
 | GUMROAD_REQUEST_TIMEOUT_MS | Default 30000; accepted 100–300000 milliseconds |
@@ -6077,7 +6076,7 @@ npm uninstall -g @thenavidm/gumroad-mcp-cli
 | Exit 10/no credentials | Intended credential type/profile/private file; login prints setup only |
 | 401/403 | Seller credential expiry/revocation and correct native scope; admin token is separate |
 | License verify failed | Current product_id, intended private license and native purchase/refund/revocation/subscription context |
-| Use counter changed | Use verify-license for explicitfalse; increment-license-uses is a separate confirmed effect |
+| Use counter changed | Use verify-license for explicit false; increment-license-uses is a separate confirmed effect |
 | Unreadable file | Absolute regular non-symlink owner-private token-only path, <=64 KiB; restrict Windows ACLs |
 | Unknown URL/preview field | Use current flat selected schema; legacy guessed fields are rejected |
 | Custom field GET 404 | Use compatibility get-custom-field or native list; no guessed single GET route |
@@ -6125,25 +6124,25 @@ Use ours when consistent mandatory per-call guards across CLI/MCP, isolated priv
 | Component | Version and evidence |
 | --- | --- |
 | Package and desktop | 2.0.0; public installation verified in release evidence |
-| Native API | v2; selected51tool contracts/50 distinct routes checked2026-10-03 |
-| Official CLI/local MCP | 2026.10.02;105actual discovered tools |
+| Native API | v2; selected 51 tool contracts/50 distinct routes checked 2026-10-03 |
+| Official CLI/local MCP | 2026.10.02;105 actual discovered tools |
 | Official app source | 0feb9b02b45efffc4ea4c7f8dea5c18a7f58ec0f |
-| Printing Press | Declared2026.9.1; pinned source only |
+| Printing Press | Declared 2026.9.1; pinned source only |
 | MCP SDK | 1.32.0 locked |
 | Node | >=22 |
-| Private legacy | 1.0.0;34names preserved, current major arguments apply |
+| Private legacy | 1.0.0;34 names preserved, current major arguments apply |
 | Matched Codex usage | Pending completed equivalent provider tasks |
 
-| Legacy behavior | Current2.0.0 contract |
+| Legacy behavior | Current 2.0.0 contract |
 | --- | --- |
 | One MCP binary/startup global token | Scoped package, both binaries, credential-free discovery |
 | Tokens in query URL | Private Bearer seller auth |
 | product_permalink/license_key in arguments | Current product_id plus private license settings |
-| Verification omission increments | verify_license explicitly sendsfalse; separate confirmed increment |
+| Verification omission increments | verify_license explicitly sends false; separate confirmed increment |
 | Guessed custom-field GET | Documented list plus exact matching compatibility helper |
-| POST resource subscription | Current native PUT, required resource_name and HTTPSpost_url |
+| POST resource subscription | Current native PUT, required resource_name and HTTPS post_url |
 | Legacy guessed product url/preview | Selected current custom_permalink and native field subset |
-| No common effect confirmation | All32 native/local effects confirmed and read-only enforced |
+| No common effect confirmation | All 32 native/local effects confirmed and read-only enforced |
 | Unbounded subscribers | Native paginated=true |
 | No review/export controls | Exact ordered review and bounded private cursor continuation |
 | Private source history | Intact private history retained; sanitized new public snapshot |
@@ -6155,7 +6154,7 @@ See [CHANGELOG.md](CHANGELOG.md). No old private refs or credentials are publish
 <details>
 <summary><b>What does this Gumroad MCP server and CLI do?</b></summary>
 
-It provides57shared commerce tasks through a local stdio MCP, dedicated task CLI and desktop bundle. Current selected product/sale/subscriber/payout/license/webhook work uses the same contracts and approval policy across both interfaces.
+It provides 57 shared commerce tasks through a local stdio MCP, dedicated task CLI and desktop bundle. Current selected product/sale/subscriber/payout/license/webhook work uses the same contracts and approval policy across both interfaces.
 
 </details>
 
@@ -6169,7 +6168,7 @@ Yes. Official CLI/local MCP release 2026.10.02 exposes 105 tools in actual proto
 <details>
 <summary><b>How many tasks are read only?</b></summary>
 
-57 shared tools include25 reads/helpers and 32 confirmed effects. There are51 native tool contracts covering50 distinct routes, plus six compatibility/local helpers. READ_ONLY exposes 25; counts alone do not compare native capability depth.
+57 shared tools include 25 reads/helpers and 32 confirmed effects. There are 51 native tool contracts covering 50 distinct routes, plus six compatibility/local helpers. READ_ONLY exposes 25; counts alone do not compare native capability depth.
 
 </details>
 
@@ -6267,7 +6266,7 @@ Exports are bounded private metadata with native cursor and partial-page offset 
 <details>
 <summary><b>Does the package retry failures?</b></summary>
 
-No automatic retry is performed, including429, timeout or unknown effect outcomes. Default pacing is 1,000 milliseconds per request with a30-second timeout. Inspect native state and known/unattempted results before deliberately repeating requested work.
+No automatic retry is performed, including429, timeout or unknown effect outcomes. Default pacing is 1,000 milliseconds per request with a 30-second timeout. Inspect native state and known/unattempted results before deliberately repeating requested work.
 
 </details>
 

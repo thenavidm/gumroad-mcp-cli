@@ -1,6 +1,6 @@
 # Install Gumroad MCP Server & CLI
 
-One package,57 shared tasks, two binaries and bundled desktop extension. Node 22+ is required.
+One package, 57 shared tasks, two binaries and bundled desktop extension. Node 22+ is required.
 
 ## Requirements
 
@@ -245,7 +245,7 @@ Help/discovery/login/schema are local. Real provider account outcomes, desktop G
 | GUMROAD_LICENSE_FILE | Absolute owner-private license-only file |
 | GUMROAD_ACCOUNTS | Private named array: name, access_token/token_file, license_key/license_file; no fallback |
 | GUMROAD_DEFAULT_ACCOUNT | Exact configured default profile label |
-| GUMROAD_READ_ONLY | 1/true hides/directly refuses32 effects |
+| GUMROAD_READ_ONLY | 1/true hides/directly refuses 32 effects |
 | GUMROAD_ALLOW_DESTRUCTIVE | 0/false refuses effects even with confirm |
 | GUMROAD_AUDIT_LOG | Optional private best-effort static guard decisions |
 | GUMROAD_REQUEST_TIMEOUT_MS | Default 30000; accepted 100–300000 milliseconds |
@@ -270,7 +270,7 @@ npm uninstall -g @thenavidm/gumroad-mcp-cli
 | Exit 10/no credentials | Intended credential type/profile/private file; login prints setup only |
 | 401/403 | Seller credential expiry/revocation and correct native scope; admin token is separate |
 | License verify failed | Current product_id, intended private license and native purchase/refund/revocation/subscription context |
-| Use counter changed | Use verify-license for explicitfalse; increment-license-uses is a separate confirmed effect |
+| Use counter changed | Use verify-license for explicit false; increment-license-uses is a separate confirmed effect |
 | Unreadable file | Absolute regular non-symlink owner-private token-only path, <=64 KiB; restrict Windows ACLs |
 | Unknown URL/preview field | Use current flat selected schema; legacy guessed fields are rejected |
 | Custom field GET 404 | Use compatibility get-custom-field or native list; no guessed single GET route |
