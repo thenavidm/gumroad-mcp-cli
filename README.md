@@ -6297,7 +6297,7 @@ Open a [secret-free issue](https://github.com/thenavidm/gumroad-mcp-cli/issues).
 
 ## About the author
 
-Navid Moazzez is a leading AI business strategist, and the host of the AI Creator Summit, watched by 100,000+ creators. He helps creators and founders master AI and build their own AI Operating System (AI OS) to automate their business and life. This Gumroad MCP server and CLI is one piece of that system.
+Navid Moazzez is a leading AI business strategist, and the host of the AI Creator Summit, watched by 100,000+ creators. He helps creators and founders master AI and build their own AI Operating System (AI OS) to automate their business and life. He creates useful free tools, MCP servers and CLIs that creators and founders can use in their own workflows.
 
 **Links**
 
@@ -6327,4 +6327,4 @@ Pinned official documentation/controller source informs selected contracts; it i
 
 ---
 
-©2026 [Navid Media](https://navid.media). Built and maintained by [Navid Moazzez](https://navid.me).
+© 2026 [Navid Media](https://navid.media?utm_source=github&utm_medium=referral&utm_campaign=gumroad-mcp-cli&utm_content=readme). Made with ❤️ by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=gumroad-mcp-cli&utm_content=readme).
