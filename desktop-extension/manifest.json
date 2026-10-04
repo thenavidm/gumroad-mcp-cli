@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "gumroad",
   "display_name": "Gumroad MCP Server & CLI",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "57 shared Gumroad commerce tasks with private seller/license profiles and per-call approval.",
   "long_description": "51 native tool contracts over 50 distinct routes plus 6 compatibility/local helpers. 25 reads and 32 confirmed effects. Official CLI and MCP already exist. OAuth import, automatic retries, transaction guarantees and measured task-token savings are not advertised.",
   "author": {

@@ -1,12 +1,13 @@
 {
   "name": "@thenavidm/gumroad-mcp-cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Gumroad shared task CLI and local MCP with private seller/license profiles, mandatory effect approval, safe license checks, exact reviewed batches and bounded private exports.",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
     "gumroad-mcp": "dist/index.js",
-    "gumroad-cli": "dist/index.js"
+    "gumroad-cli": "dist/index.js",
+    "gumroad-mcp-cli": "dist/npx.js"
   },
   "engines": {
     "node": ">=22"

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1, 2026-10-04
+
+- **`npx -y @thenavidm/gumroad-mcp-cli` always starts the MCP server.** npx starts whichever binary the npm registry lists first when they share one file, and the registry does not keep the published order, so an MCP client set up with this README's install line could get `gumroad-cli` and its command list instead of a server. A third binary named after the package now always starts the server, and npx picks it by name.
+
 ## 2.0.0 — 2026-10-03
 
 - Modernize private 1.0.0 MCP into scoped shared TypeScript CLI/local MCP and desktop bundle; preserve all 34 legacy names with corrected current major argument contracts.
