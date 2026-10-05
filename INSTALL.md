@@ -83,7 +83,7 @@ Alternatively install the CLI, make SKILL.md available to Claude, and use shell 
 
 ### Install the .mcpb extension
 
-1. Download `gumroad-2.0.0.mcpb` from [GitHub Releases](https://github.com/thenavidm/gumroad-mcp-cli/releases/latest).
+1. Download `gumroad-3.0.0.mcpb` from [GitHub Releases](https://github.com/thenavidm/gumroad-mcp-cli/releases/latest).
 2. In a supported Claude Desktop build, open **Settings > Extensions > Advanced settings > Install Extension…** and select it.
 3. Configure seller token OR token-only file. Add a private customer license OR license file when needed; leave unused sources empty. Named profiles require private manual runtime settings.
 4. Enable read-only if you want only the 25 read/helper operations. Reconnect and verify the intended profile with one deliberate read.

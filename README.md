@@ -11,7 +11,7 @@
 
 Gumroad MCP server and CLI for Codex and AI agents. 57 shared tasks with private seller/license profiles, mandatory effect approval, exact reviewed work and bounded metadata exports.
 
-Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=gumroad-mcp-cli&utm_content=readme). Full setup is on [navid.me](https://navid.me/mcp-servers/gumroad).
+Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=referral&utm_campaign=gumroad-mcp-cli&utm_content=readme). Built on [Slipway](https://github.com/thenavidm/slipway), which turns one definition of each tool into the MCP server and the CLI. Full setup is on [navid.me](https://navid.me/mcp-servers/gumroad).
 
 <img src="https://cdn.navid.me/repos/gumroad-mcp-cli-retina.gif" alt="Illustrated Gumroad workflow in the actual house terminal component" width="520">
 
@@ -229,7 +229,7 @@ Alternatively install the CLI, make SKILL.md available to Claude, and use shell 
 
 ### Install the .mcpb extension
 
-1. Download `gumroad-2.0.0.mcpb` from [GitHub Releases](https://github.com/thenavidm/gumroad-mcp-cli/releases/latest).
+1. Download `gumroad-3.0.0.mcpb` from [GitHub Releases](https://github.com/thenavidm/gumroad-mcp-cli/releases/latest).
 2. In a supported Claude Desktop build, open **Settings > Extensions > Advanced settings > Install Extension…** and select it.
 3. Configure seller token OR token-only file. Add a private customer license OR license file when needed; leave unused sources empty. Named profiles require private manual runtime settings.
 4. Enable read-only if you want only the 25 read/helper operations. Reconnect and verify the intended profile with one deliberate read.
@@ -389,12 +389,13 @@ gumroad-cli get-sale --sale-id REVIEWED_SALE_ID --agent --select sale.id,sale.cu
 gumroad-cli schema refund-sale
 ~~~
 
-CLI uses hyphenated commands, MCP uses underscores. --json gives parsed native objects, --compact emits one line, --agent requests compact JSON/no-input/no-color/yes formatting, and --select keeps chosen fields. None approves effects. Repeated --tags takes each string; --tasks takes each task JSON object; --arguments takes one JSON filter object.
+CLI uses hyphenated commands, MCP uses underscores. --json gives parsed native objects, --compact emits one line, --agent requests compact JSON with no prompts and never confirms, and --select keeps chosen fields. None approves effects. Repeated --tags takes each string; --tasks takes each task JSON object; --arguments takes one JSON filter object.
 
 | Exit | Meaning |
 | --- | --- |
 | 0 | Success |
-| 2 | Usage/input/refused effect |
+| 1 | Unexpected error |
+| 2 | Usage/input/refused effect, an unknown command or a hidden write |
 | 3 | Native/helper not found |
 | 4 | Authentication/permission |
 | 5 | API/unknown transport failure |
@@ -405,7 +406,19 @@ CLI uses hyphenated commands, MCP uses underscores. --json gives parsed native o
 
 Client loading mode matters: MCP may load full schemas, defer discovery or select tools. CLI also needs help/schema discovery, execution and model-readable output. --agent emits compact JSON; --select can narrow returned fields without changing the requested native call. These formatting options do not establish fewer tokens for a successful equivalent task.
 
-Codex is the current priority. Matched completed provider-task/token measurements remain pending: record client/model/package versions, checked date, actual loading mode, equivalent requested outcomes, API input/output/cache usage and latency. Do not substitute tool counts, character-based estimates, protocol discovery or another integration's results. Claude Code benchmarks remain deferred. This release claims verified contracts and local behavior, not measured task-token savings.
+Measured on 2026-10-05 against 2.0.1, with Claude Code 2.1.286 on Claude Opus 5.5 (one short prompt with and without the server connected, the difference read from the API's own usage figures) and Codex 0.159.3 on gpt-6.1-sol:
+
+| Cost | 2.0.1 | 3.0.0 |
+| --- | --- | --- |
+| Claude Code, every tool loaded, every message | 22,424 | 22,128 |
+| Claude Code's default, tool search, every message | 1,138 | 1,139 |
+| `SKILL.md`, read once | 4,438 | 4,502 |
+| Codex over the CLI, one task, median of five | 104,433 | 82,764 |
+| Codex over MCP, the same task, median of five | 76,448 | 76,542 |
+
+The task was "find the command that refunds a sale, and the flags it requires". Every tool loaded costs less because prices and counts no longer advertise JavaScript's safe-integer bounds, while the list a client receives grows by an approval marker on the 32 confirmed tools, which Claude Code does not pass to the model. Over the CLI, four 2.0.1 runs tried `schema` without a command and then read the whole command list, and four 3.0.0 runs asked `which refund`, which fits three commands alike and so lists them, then read the right command's help. Over MCP, Codex prints only part of a tool list this long, and 3.0.0's part takes a few more tokens to say. `SKILL.md` costs 64 more because it says how approval works over MCP and what exit codes 1 and 2 cover.
+
+Tool-list bytes or characters divided by four are not API usage, and no other offering was measured.
 
 
 ## 8. Every tool and argument
@@ -673,7 +686,7 @@ Create product. Reviewed native POST /products; scope: edit_products. Requires e
 | `refund_period` | string | Optional | (optional, "inherit", "none", "7", "14", "30", or "183") sets a product-level refund policy; "inherit" uses the account default. Only available when the account-level refund policy is not in effect; otherwise use PUT /v2/refund_policy {"enum": ["inherit", "none", "7", "14", "30", "183"]} |
 | `refund_fine_print` | string | Optional | (optional) fine print for the product-level refund policy; requires refund_period unless the product already has one enabled, and cannot be combined with refund_period "inherit". Empty string clears it {"maxLength": 65536} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-product --help
@@ -1019,7 +1032,7 @@ Update product. Reviewed native PUT /products/:id; scope: edit_products. Require
 | `refund_fine_print` | string | Optional | (optional) fine print for the product-level refund policy; requires refund_period unless the product already has one enabled, and cannot be combined with refund_period "inherit". Empty string clears it {"maxLength": 65536} |
 | `has_same_rich_content_for_all_variants` | boolean | Optional | (optional, true or false) switches between product-level and per-variant rich content |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-product --help
@@ -1345,7 +1358,7 @@ Delete product. Reviewed native DELETE /products/:id; scope: edit_products. Requ
 | --- | --- | --- | --- |
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-product --help
@@ -1422,7 +1435,7 @@ Enable product. Reviewed native PUT /products/:id/enable; scope: edit_products. 
 | --- | --- | --- | --- |
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli enable-product --help
@@ -1499,7 +1512,7 @@ Disable product. Reviewed native PUT /products/:id/disable; scope: edit_products
 | --- | --- | --- | --- |
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli disable-product --help
@@ -1799,7 +1812,7 @@ Mark sale as shipped. Reviewed native PUT /sales/:id/mark_as_shipped; scope: mar
 | `sale_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `tracking_url` | string | Optional | (optional) Full http:// or https:// URL {"maxLength": 65536, "format": "uri"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli mark-sale-as-shipped --help
@@ -1892,7 +1905,7 @@ Refund sale. Reviewed native PUT /sales/:id/refund; scope: edit_sales. Requires 
 | `amount_cents` | integer | Optional | (optional) - Amount to refund, in minor units of the sale's listed currency — the `currency` field on the sale object, not the buyer's local currency. Every listed currency has 100 minor units except `jpy`, which has none (whole yen), so for most sales 200 means 2.00 of that currency, but for a JPY sale 200 means ¥200. If set, issue partial refund by this amount. If not set, issue full refund. You can issue multiple partial refunds per sale until it is fully refunded. {"minimum": 1, "maximum": 9007199254740991} |
 | `full_refund` | boolean | Optional | Deliberate full refund. Must be true if amount_cents is omitted, and cannot coexist with it. |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli refund-sale --help
@@ -1991,7 +2004,7 @@ Revoke sale access. Reviewed native PUT /sales/:id/revoke_access; scope: edit_sa
 | --- | --- | --- | --- |
 | `sale_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli revoke-sale-access --help
@@ -2068,7 +2081,7 @@ Restore sale access. Reviewed native PUT /sales/:id/undo_revoke_access; scope: e
 | --- | --- | --- | --- |
 | `sale_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli restore-sale-access --help
@@ -2145,7 +2158,7 @@ Resend sale receipt. Reviewed native POST /sales/:id/resend_receipt; scope: edit
 | --- | --- | --- | --- |
 | `sale_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli resend-sale-receipt --help
@@ -2465,7 +2478,7 @@ Enable license. Reviewed native PUT /licenses/enable; scope: edit_products. Requ
 | --- | --- | --- | --- |
 | `product_id` | string | Required | (the unique ID of the product — copy it from the license key block on the product's Content tab, or use the id field returned by the GET /products endpoint) {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli enable-license --help
@@ -2542,7 +2555,7 @@ Disable license. Reviewed native PUT /licenses/disable; scope: edit_products. Re
 | --- | --- | --- | --- |
 | `product_id` | string | Required | (the unique ID of the product — copy it from the license key block on the product's Content tab, or use the id field returned by the GET /products endpoint) {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli disable-license --help
@@ -2619,7 +2632,7 @@ Decrement license uses. Reviewed native PUT /licenses/decrement_uses_count; scop
 | --- | --- | --- | --- |
 | `product_id` | string | Required | (the unique ID of the product — copy it from the license key block on the product's Content tab, or use the id field returned by the GET /products endpoint) {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli decrement-license-uses --help
@@ -2696,7 +2709,7 @@ Rotate license. Reviewed native PUT /licenses/rotate; scope: edit_products. Requ
 | --- | --- | --- | --- |
 | `product_id` | string | Required | (the unique ID of the product — copy it from the license key block on the product's Content tab, or use the id field returned by the GET /products endpoint) {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `output_file` | string | Required | Required absolute NEW owner-private file for the replacement license receipt; no overwrite. {"minLength": 1} |
 
 ~~~bash
@@ -2781,7 +2794,7 @@ Create variant category. Reviewed native POST /products/:product_id/variant_cate
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `title` | string | Required | Reviewed current contract value. {"maxLength": 65536} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-variant-category --help
@@ -2964,7 +2977,7 @@ Update variant category. Reviewed native PUT /products/:product_id/variant_categ
 | `title` | string | Required | Reviewed current contract value. {"maxLength": 65536} |
 | `variant_category_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-variant-category --help
@@ -3073,7 +3086,7 @@ Delete variant category. Reviewed native DELETE /products/:product_id/variant_ca
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `variant_category_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-variant-category --help
@@ -3243,7 +3256,7 @@ Create variant. Reviewed native POST /products/:product_id/variant_categories/:v
 | `price_difference_cents` | integer | Required | Reviewed current contract value. {"minimum": -9007199254740991, "maximum": 9007199254740991} |
 | `max_purchase_count` | integer | Optional | (optional) {"minimum": 0, "maximum": 9007199254740991} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-variant --help
@@ -3492,7 +3505,7 @@ Update variant. Reviewed native PUT /products/:product_id/variant_categories/:va
 | `price_difference_cents` | integer | Optional | Reviewed current contract value. {"minimum": -9007199254740991, "maximum": 9007199254740991} |
 | `max_purchase_count` | integer | Optional | (optional) {"minimum": 0, "maximum": 9007199254740991} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-variant --help
@@ -3645,7 +3658,7 @@ Delete variant. Reviewed native DELETE /products/:product_id/variant_categories/
 | `variant_category_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `variant_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-variant --help
@@ -4014,7 +4027,7 @@ Create offer code. Reviewed native POST /products/:product_id/offer_codes; scope
 | `minimum_amount_cents` | integer | Optional | (optional) Minimum order total in cents required for the offer code to apply {"minimum": 0, "maximum": 9007199254740991} |
 | `universal` | boolean | Optional | (optional, true or false) Default: false |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-offer-code --help
@@ -4175,7 +4188,7 @@ Update offer code. Reviewed native PUT /products/:product_id/offer_codes/:id; sc
 | `max_purchase_count` | integer | Optional | Reviewed current contract value. {"minimum": 0, "maximum": 9007199254740991} |
 | `minimum_amount_cents` | integer | Optional | (optional) Minimum order total in cents required for the offer code to apply {"minimum": 0, "maximum": 9007199254740991} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-offer-code --help
@@ -4297,7 +4310,7 @@ Delete offer code. Reviewed native DELETE /products/:product_id/offer_codes/:id;
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `offer_code_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-offer-code --help
@@ -4465,7 +4478,7 @@ Create custom field. Reviewed native POST /products/:product_id/custom_fields; s
 | `name` | string | Required | Reviewed current contract value. {"maxLength": 65536} |
 | `required` | boolean | Required | (true or false) |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-custom-field --help
@@ -4569,7 +4582,7 @@ Update custom field. Reviewed native PUT /products/:product_id/custom_fields/:na
 | `name` | string | Required | Exact existing field name; encoded as one URL segment. {"minLength": 1, "maxLength": 256} |
 | `required` | boolean | Required | (true or false) |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-custom-field --help
@@ -4674,7 +4687,7 @@ Delete custom field. Reviewed native DELETE /products/:product_id/custom_fields/
 | `product_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `name` | string | Required | Exact existing field name; encoded as one URL segment. {"minLength": 1, "maxLength": 256} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-custom-field --help
@@ -4767,7 +4780,7 @@ Create resource subscription. Reviewed native PUT /resource_subscriptions; scope
 | `resource_name` | string | Required | Exact native event to subscribe to. {"enum": ["sale", "refund", "dispute", "dispute_won", "cancellation", "subscription_updated", "subscription_ended", "subscription_restarted"]} |
 | `post_url` | string | Required | Intended HTTPS callback; provider posts private customer events. {"maxLength": 65536, "format": "uri"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli create-resource-subscription --help
@@ -4959,7 +4972,7 @@ Delete resource subscription. Reviewed native DELETE /resource_subscriptions/:re
 | --- | --- | --- | --- |
 | `resource_subscription_id` | string | Required | Exact opaque provider ID, including native = padding. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli delete-resource-subscription --help
@@ -5087,7 +5100,7 @@ Update refund policy. Reviewed native PUT /refund_policy; scope: account. Requir
 | `refund_period` | string | Required | Required. One of "none", "7", "14", "30", or "183". {"enum": ["none", "7", "14", "30", "183"]} |
 | `fine_print` | string | Optional | Optional. Max 3000 characters. HTML is stripped. Send an empty value to clear it. {"maxLength": 3000} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli update-refund-policy --help
@@ -5450,7 +5463,7 @@ Verify the intended private license and increment its native usage counter. Expl
 | --- | --- | --- | --- |
 | `product_id` | string | Required | Current native product ID, never deprecated permalink. {"minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_=-]+$"} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 
 ~~~bash
 gumroad-cli increment-license-uses --help
@@ -5754,7 +5767,7 @@ Confirmed ordered native effects, all prevalidated before first request, exact h
 | --- | --- | --- | --- |
 | `tasks` | array | Required | One to twenty exact ordered native effects. No replacement-key output. Nested arguments cannot override profile/confirmation or carry credentials/files. {"minItems": 1, "maxItems": 20} |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `review_sha256` | string | Required | Reviewed current contract value. {"pattern": "^[a-f0-9]{64}$"} |
 
 ~~~bash
@@ -5849,7 +5862,7 @@ Confirmed cursor-based JSON export into a new exclusive 0600 private file, with 
 | `operation` | string | Required | Reviewed current contract value. {"enum": ["list_products", "list_sales", "list_subscribers", "list_payouts"]} |
 | `arguments` | object | Optional | Actual list filters/page_key, no account override. |
 | `account` | string | Optional | Exact private profile label; never inherited credentials, ownership or scope proof. |
-| `confirm` | boolean | Optional | Explicit approval of this exact native effect or private file output. |
+| `confirm` | boolean | Optional | Set true only when the user asked for exactly this action. |
 | `start_offset` | integer | Optional | Reviewed current contract value. {"minimum": 0, "maximum": 9999} |
 | `max_pages` | integer | Optional | Reviewed current contract value. {"minimum": 1, "maximum": 100} |
 | `max_items` | integer | Optional | Reviewed current contract value. {"minimum": 1, "maximum": 10000} |
@@ -6027,12 +6040,14 @@ These labels/IDs are placeholders. Configure their real values privately. Revoke
 
 All 32 native/local effects require explicit confirm. GUMROAD_READ_ONLY=1 hides them and directly refuses hidden confirmed calls through the actual server handler. GUMROAD_ALLOW_DESTRUCTIVE=0 refuses them even with confirm. --agent and --yes affect output/prompt formatting only, never approval. The same guard protects CLI and MCP, including counter changes, receipts, product publication, refunds and private export file writes.
 
+Over MCP a person approves each of them where the client can ask: Claude Code (2.1.246 and later) shows its own prompt, and a client that can show forms asks with an approval form whose one box starts unticked. Each approval is signed, bound to that exact call and works once. Where a client can do neither, the model's confirm:true counts. GUMROAD_CONFIRM=model makes confirm:true enough everywhere, for an agent with no person to ask.
+
 Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout, 1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
 
 
 ## 13. How the two surfaces work
 
-src/tools/index.ts exports one shared array. The native reviewed operations.json and provenance.json define the selected typed field subset. The existing CLI bridge invokes the real server via in-memory SDK transport; both use identical validation/profile/native compiler/WriteGuard. This is not an official OpenAPI export. No generic request passthrough or arbitrary host is exposed.
+src/tools/index.ts exports one shared array. The native reviewed operations.json and provenance.json define the selected typed field subset. [Slipway](https://github.com/thenavidm/slipway) builds the MCP server, over stdio or `--http`, and the CLI from it; both use identical validation, profiles, native compiler and write guard. This is not an official OpenAPI export. No generic request passthrough or arbitrary host is exposed.
 
 ## 14. Your data
 
@@ -6056,6 +6071,12 @@ The package has no telemetry, browser-cookie import, arbitrary host or digital-f
 | GUMROAD_AUDIT_LOG | Optional private best-effort static guard decisions |
 | GUMROAD_REQUEST_TIMEOUT_MS | Default 30000; accepted 100–300000 milliseconds |
 | GUMROAD_MIN_REQUEST_INTERVAL_MS | Default 1000; accepted 0–10000 milliseconds; not distributed quota enforcement |
+| GUMROAD_CONFIRM | human by default; model lets confirm:true alone approve over MCP, for an agent with no person to ask |
+| GUMROAD_SURFACE | full by default; search lists three tools that find, describe and run the rest |
+| GUMROAD_TOOL_TIMEOUT_MS | Give up on any tool after this long |
+| GUMROAD_HTTP_PORT, GUMROAD_HTTP_HOST, GUMROAD_HTTP_TOKEN | For --http: port 8787 and host 127.0.0.1 by default; any other host needs the bearer token |
+| GUMROAD_HTTP_ALLOWED_ORIGINS | Comma-separated browser origins allowed to call --http; a page from any other site is refused |
+| GUMROAD_DEBUG | 1 prints debug lines on stderr |
 
 ## 16. Updates and removal
 
@@ -6123,17 +6144,18 @@ Use ours when consistent mandatory per-call guards across CLI/MCP, isolated priv
 
 | Component | Version and evidence |
 | --- | --- |
-| Package and desktop | 2.0.0; public installation verified in release evidence |
+| Package and desktop | 3.0.0; public installation verified in release evidence |
 | Native API | v2; selected 51 tool contracts/50 distinct routes checked 2026-10-03 |
 | Official CLI/local MCP | 2026.10.02;105 actual discovered tools |
 | Official app source | 0feb9b02b45efffc4ea4c7f8dea5c18a7f58ec0f |
 | Printing Press | Declared 2026.9.1; pinned source only |
-| MCP SDK | 1.32.0 locked |
+| Slipway | 0.1.20 |
+| MCP TypeScript SDK, through Slipway | 2.3.0 |
 | Node | >=22 |
 | Private legacy | 1.0.0;34 names preserved, current major arguments apply |
-| Matched Codex usage | Pending completed equivalent provider tasks |
+| Matched Codex usage | Measured against 2.0.1 in README section 7 |
 
-| Legacy behavior | Current 2.0.0 contract |
+| Legacy behavior | Contract since 2.0.0 |
 | --- | --- |
 | One MCP binary/startup global token | Scoped package, both binaries, credential-free discovery |
 | Tokens in query URL | Private Bearer seller auth |
@@ -6210,7 +6232,7 @@ No. Native tokens/scopes and seller/license ownership govern provider authority.
 <details>
 <summary><b>Are CLI and MCP separate implementations?</b></summary>
 
-No. Both use the same tool definitions, JSON schemas, native compiler, private profiles and WriteGuard. The house CLI calls the real server over SDK in-memory transport, so supported arguments and guards remain aligned.
+No. Both use the same tool definitions, JSON schemas, native compiler, private profiles and write guard. [Slipway](https://github.com/thenavidm/slipway) builds both from each tool's one definition, so supported arguments and guards remain aligned.
 
 </details>
 
@@ -6280,7 +6302,7 @@ Codex is prioritized; setup also covers Claude Code, Claude Desktop, Cursor, VS 
 <details>
 <summary><b>Does CLI use fewer tokens than MCP?</b></summary>
 
-Equivalent completed Codex provider-task usage remains unmeasured. Loading mode, discovery, requested outcome and result sizes all matter. Compact output/field selection can narrow results, but schema counts, character estimates and another tool benchmark are not task-token evidence.
+In Claude Code the CLI costs nothing until it is used, plus about 4,500 tokens for `SKILL.md` once, where the server costs about 1,140 tokens a message with tool search and 22,100 with every tool loaded. In Codex, finding the command that refunds a sale and its flags took a median of 82,764 input tokens over the CLI and 76,542 over MCP. Section 7 has how each was measured.
 
 </details>
 
@@ -6315,7 +6337,8 @@ If this is useful, star the repo and come say hi on [X](https://x.com/thenavidm)
 
 | Library | License | Purpose |
 | --- | --- | --- |
-| [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | MIT | Server, actual MCP and in-memory CLI transport |
+| [Slipway](https://github.com/thenavidm/slipway) | Apache-2.0 | The MCP server and the CLI from one definition of each tool |
+| [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | Apache-2.0 | The MCP protocol and its transports, through Slipway |
 | [Ajv](https://github.com/ajv-validator/ajv) | MIT | Typed input contracts |
 | [ajv-formats](https://github.com/ajv-validator/ajv-formats) | MIT | Native date/URI/email validation |
 

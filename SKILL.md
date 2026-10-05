@@ -26,14 +26,15 @@ CLI uses hyphenated commands, MCP uses underscores. --json gives parsed native o
 | Exit | Meaning |
 | --- | --- |
 | 0 | Success |
-| 2 | Usage/input/refused effect |
+| 1 | Unexpected error |
+| 2 | Usage/input/refused effect, an unknown command or a hidden write |
 | 3 | Native/helper not found |
 | 4 | Authentication/permission |
 | 5 | API/unknown transport failure |
 | 7 | Rate limited |
 | 10 | Missing/invalid configuration |
 
-All 32 native/local effects require explicit confirm. GUMROAD_READ_ONLY=1 hides them and directly refuses hidden confirmed calls through the actual server handler. GUMROAD_ALLOW_DESTRUCTIVE=0 refuses them even with confirm. --agent and --yes affect output/prompt formatting only, never approval. The same guard protects CLI and MCP, including counter changes, receipts, product publication, refunds and private export file writes.
+All 32 native/local effects require explicit confirm. GUMROAD_READ_ONLY=1 hides them and directly refuses hidden confirmed calls through the actual server handler. GUMROAD_ALLOW_DESTRUCTIVE=0 refuses them even with confirm. --agent and --yes affect output/prompt formatting only, never approval. The same guard protects CLI and MCP, including counter changes, receipts, product publication, refunds and private export file writes. Over MCP the person approves each in the client's own prompt or form; confirm:true counts only where the client cannot ask.
 
 Native authorization remains with Gumroad. A local profile, filter, confirmation or request-review hash does not prove seller ownership, customer consent, entitlement or financial correctness. No automatic retry, redirects or guessed continuation is allowed. A failure after a write can mean an unknown outcome; investigate before deliberately repeating. Default pacing is 1,000ms/request with 30,000ms timeout, 1 MiB request and 5 MiB response caps. Other processes share provider quotas; this is conservative local pacing, not a global rate-limit guarantee.
 

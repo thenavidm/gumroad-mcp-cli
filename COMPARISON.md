@@ -31,5 +31,5 @@ Use ours when consistent mandatory per-call guards across CLI/MCP, isolated priv
 
 Client loading mode matters: MCP may load full schemas, defer discovery or select tools. CLI also needs help/schema discovery, execution and model-readable output. --agent emits compact JSON; --select can narrow returned fields without changing the requested native call. These formatting options do not establish fewer tokens for a successful equivalent task.
 
-Codex is the current priority. Matched completed provider-task/token measurements remain pending: record client/model/package versions, checked date, actual loading mode, equivalent requested outcomes, API input/output/cache usage and latency. Do not substitute tool counts, character-based estimates, protocol discovery or another integration's results. Claude Code benchmarks remain deferred. This release claims verified contracts and local behavior, not measured task-token savings.
+README section 7 has this package's measured Claude Code and Codex costs against 2.0.1. No other offering was measured, so no comparison with one is claimed.
 
